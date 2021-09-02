@@ -38,6 +38,7 @@ echo "brew installing stuff"
 #####################################
 # INSTALLING PACKAGES WITH HOMEBREW #
 #####################################
+echo "installing packages..."
 # Enter the desired packages into the PKG_LIST array below. Separate each package with a space.
 # This will check if HomeBrew has already installed the package.
 PKG_LIST=(mas wget python@3.9 youtube-dl node ffmpeg hub tree ripgrep)
@@ -53,6 +54,8 @@ done;
 ###################################################
 # INSTALLING APPS NOT FROM APP STORE VIA HOMEBREW #
 ###################################################
+
+echo "installing apps that are not from the App Store..."
 declare -A BREW_LIST
 BREW_LIST=( [Google\ Chrome]=google-chrome 
 [Spotify]=spotify 
@@ -68,6 +71,7 @@ BREW_LIST=( [Google\ Chrome]=google-chrome
 [Zoom]=zoom 
 [RDM]=avibrazil-rdm 
 [BetterZip]=betterzip 
+[Github\ Desktop]=github 
 )
 
 for BREW_APP in ${(k)BREW_LIST}; 
@@ -83,6 +87,7 @@ done;
 ##################################
 # INSTALLING APPS FROM APP STORE #
 ##################################
+echo "installing apps from the App Store..."
 # Add apps and their mas id to the associative array ex. myArray=([appName]=appId or appName appID) spaces in the app name must be escaped with '\'
 declare -A APP_LIST
 APP_LIST=( [Microsoft\ Excel]=462058435 
@@ -104,6 +109,8 @@ done;
 
 # Hide last session information that appears each time a new shell session is started
 cd ${HOME}
+touch .hushlogin
+
 # Check the node and npm versions and print it to console
 echo "node --version: $(node --version)"
 echo "npm --version: $(npm --version)"
@@ -112,23 +119,27 @@ echo "installing a few global npm packages"
 npm install --global serve fkill-cli npm-quick-run \
 semantic-release-cli npm-check-updates
 
-echo "installing apps with brew --cask"
-brew install --cask brave-browser bettertouchtool divvy \
-bartender itsycal visual-studio-code 1password dash screenflow skype workflowy \
-sublime-text vlc discord obs handbrake zoom betterzip avibrazil-rdm sip \
-qlcolorcode qlmarkdown qlstephen quicklook-json webpquicklook \
-suspicious-package qlvideo spotify focus dropbox front qmoji slack
-
-echo "Generating an RSA token for GitHub"
-mkdir -p ~/.ssh
-touch ~/.ssh/config
-ssh-keygen -t rsa -b 4096 -C "me+github@kentcdodds.com"
-echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_rsa" | tee ~/.ssh/config
+#######################################
+# GITHUB AUTHENTICATION AND FILE COPY #
+#######################################
+echo "Generating SSH key for Github authentication"
+# Checks to see if you have an SSH key already, if not it will create one and ask you to paste it into GitHub.
+if [ -f "${HOME}/.ssh/config" ]
+then echo "${HOME}/.ssh/config already exists, check to see if your SSH key is already stored then come and run the script again"
+exit
+else touch ~/.ssh/config
+echo "Please enter your the email address you want associated with your commits to GitHub:"
+read email
+ssh-keygen -t ed25519 -C "${email}"
+echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
 eval "$(ssh-agent -s)"
-echo "run 'pbcopy < ~/.ssh/id_rsa.pub' and paste that into GitHub"
+echo "PLEASE RUN 'pbcopy < ~/.ssh/id_ed25519.pub' THIS WILL COPY YOUR SSH KEY TO YOUR CLIPBOARD. PASTE IT INTO YOUR GITHUB ACCOUNT TO SAVE IT THERE."
+fi
 
+# Clones the repository containing all the dotfiles and symlinks them to the original files in the home directory.
+# Now when a program refers to the hoe dotfiles they are now pointing to the custom dotfiles cloned from the repo.
 echo "cloning dotfiles"
-git clone git@github.com:kentcdodds/dotfiles.git "${HOME}/dotfiles"
+git clone git@github.com:nickjmoss/dotfiles.git "${HOME}/dotfiles"
 ln -s "${HOME}/dotfiles/.zshrc" "${HOME}/.zshrc"
 ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
 ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
@@ -136,12 +147,6 @@ ln -s "${HOME}/dotfiles/.my_bin" "${HOME}/.my_bin"
 ln -s "${HOME}/dotfiles/.vimrc" "${HOME}/.vimrc"
 ln -s "${HOME}/dotfiles/.vimrc-parts" "${HOME}/.vimrc-parts"
 ln -s "${HOME}/dotfiles/.ripgreprc" "${HOME}/.ripgreprc"
-
-# get bat and delta all configured
-mkdir -p "${HOME}/.config/bat/themes"
-ln -s "${HOME}/dotfiles/.config/bat/config" "${HOME}/.config/bat/config"
-git clone https://github.com/batpigandme/night-owlish "${HOME}/.config/bat/themes/night-owlish"
-bat cache --build
 
 echo "making system modifications:"
 
@@ -152,20 +157,11 @@ defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool TRUE
 # General UI/UX                                                               #
 ###############################################################################
 
-# Set computer name (as done via System Preferences → Sharing)
-#sudo scutil --set ComputerName "0x6D746873"
-#sudo scutil --set HostName "0x6D746873"
-#sudo scutil --set LocalHostName "0x6D746873"
-#sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "0x6D746873"
-
 # Set standby delay to 24 hours (default is 1 hour)
 sudo pmset -a standbydelay 86400
 
 # Disable the sound effects on boot
 sudo nvram SystemAudioVolume=" "
-
-# Disable transparency in the menu bar and elsewhere on Yosemite
-# defaults write com.apple.universalaccess reduceTransparency -bool true
 
 # Set highlight color to green
 # defaults write NSGlobalDomain AppleHighlightColor -string "0.764700 0.976500 0.568600"
