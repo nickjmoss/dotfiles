@@ -2,8 +2,6 @@
 
 # ~/.macos — https://mths.be/macos
 # Modified by Nick J. Moss
-# Run without downloading:
-# Insert your github repo link curl
 
 # Close any open System Preferences panes, to prevent them from overriding
 # settings we’re about to change
@@ -13,20 +11,57 @@ osascript -e 'tell application "System Preferences" to quit'
 sudo -v
 
 # Keep-alive: update existing `sudo` time stamp until `.macos` has finished
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-
+while true; 
+  do sudo -n true; 
+  sleep 60; 
+  kill -0 "$$" || exit; 
+  done 2>/dev/null &
 ###############################################################################
-# Kent's Customizations                                                       #
+# Nick's Customizations                                                       #
 ###############################################################################
+printf "
+###############################################
+# WELCOME TO MAC OS CONFIGURATION AND SET UP! #                                                   
+###############################################
 
-echo "Hello $(whoami)! Let's get you set up."
+Hello $(whoami)! Let's get you all set up!
 
-echo "mkdir -p ${HOME}/code"
-mkdir -p "${HOME}/code"
+Press Enter to Continue
+"
+read
 
-echo "installing homebrew"
-# install homebrew https://brew.sh
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+echo "Let's create a main folder for all of your code!
+What would you like that folder to be called?"
+read name
+mkdir -p "${HOME}/${name}"
+echo "${name} was created and placed in your ${HOME} directory\n"
+
+printf "
+#########################
+# HOMEBREW INSTALLATION #
+#########################
+
+Homebrew is a package manager for Mac OS. Homebrew can download packages of code/command line tools such
+as 'youtube-dl', a video downloader for youtube videos. Homebrew can also install apps from the Mac App
+Store through a package called 'mas'. And lastly, Homebrew can install apps that are not from the App Store
+such as Spotify!
+
+This part of the script will take you through installing certain packages and apps to your computer automatically.
+First let's check if you have Homebrew installed already.
+"
+if [[ -d "/usr/local/Homebrew" ]]
+then echo "It looks like Homebrew is already installed on your machine! Now let's install some things!
+
+Press Enter to Continue\n"
+read
+else
+  echo "It looks like Homebrew is not installed on your machine. Let's get it installed!
+  
+  Press Enter to Continue\n"
+  read
+  # install homebrew https://brew.sh
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
 echo "brew installing stuff"
 # hub: a github-specific version of git
@@ -121,37 +156,207 @@ echo "npm --version: $(npm --version)"
 echo "installing a few global npm packages"
 npm install --global serve fkill-cli npm-quick-run \
 semantic-release-cli npm-check-updates
+############################################################################################
 
 #######################################
 # GITHUB AUTHENTICATION AND FILE COPY #
 #######################################
-echo "Generating SSH key for Github authentication"
-# Checks to see if you have an SSH key already, if not it will create one and ask you to paste it into GitHub.
-if [ -f "${HOME}/.ssh/config" ]
-then echo "${HOME}/.ssh/config already exists, check to see if your SSH key is already stored then come and run the script again"
-exit
-else touch ~/.ssh/config
-echo "Please enter your the email address you want associated with your commits to GitHub:"
-read email
-ssh-keygen -t ed25519 -C "${email}"
-echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
-eval "$(ssh-agent -s)"
-echo "PLEASE RUN 'pbcopy < ~/.ssh/id_ed25519.pub' THIS WILL COPY YOUR SSH KEY TO YOUR CLIPBOARD. PASTE IT INTO YOUR GITHUB ACCOUNT TO SAVE IT THERE."
+printf "
+###########################################
+# GITHUB AUTHENTICATION AND FILE DOWNLOAD #
+###########################################
+GitHub Authentication:
+  Would you like the script to authenticate your GitHub account for you with SSH? (y/n)
+
+  This will allow you to push and pull commits to and from GitHub without having to
+  enter your username and password each time.
+"
+read input
+if [[ ${input} == 'y' ]]
+then
+  echo "\nGenerating SSH key for Github authentication..."
+  if [ -f "${HOME}/.ssh/configs" ]
+  then
+    printf "
+    ${HOME}/.ssh/config already exists.
+    Check to see if your SSH key is already stored in ${HOME}/.ssh
+    The file should be called 'id_ed25519'
+
+    If the file exists enter 'y' if not enter 'n':
+    "
+    read input
+    if [[ ${input} == 'y' ]]
+    then
+      echo "\nSince the file exists, let's configure it for SSH...\n"
+      echo "Please verify that ${HOME}/.ssh/config looks exactly like this: (y/n)\n"
+      echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
+      read input
+      if [[ ${input} == 'y' ]]
+      then
+        eval "$(ssh-agent -s)"
+        ssh-add -K ~/.ssh/id_ed25519
+        printf "
+        Your SSH key has now been added to the key agent on your computer.
+        This will now allow you to push and pull commits to and from GitHub without having to sign in each time.
+
+        (Note: Some SSH keys are protected with a passphrase that the user sets up. If you do not remember the
+        passphrase and/or do not have it stored in your computers keychain then you may need to generate a new
+        SSH key.)
+        
+        IMPORTANT: Please look at the To-Do list that will be displayed after this script runs for important next steps.
+
+        Press Enter to Continue
+        "
+        read
+      else
+        printf "
+        Please refer to GitHub's documentation on 'SSH Keys' for more help.
+
+        Here is the link, please look through each page about SSH Keys listed in the nav menu on the left of the page:
+        https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh/about-ssh
+
+        I suggest you set up your SSH authentication manually with help from GitHub's Documentation and then come back
+        and run this script and enter 'n' when prompted to set up GitHub authentication.
+        "
+      fi
+    else
+      printf "
+      We are going to now generate an SSH key that will be associated with your email.
+
+      This is an email that will be associated with your commits to GitHub, this can be
+      your GitHub email(preferred) or another email.
+
+      When generating the key, it will prompt you for a passphrase. This passphrase is to
+      protect your key and this passphrase will then be stored in your computer's keychain
+      so you won't need to enter it each time you try to access GitHub.
+
+      Please enter your email:
+      "
+      read email
+      ssh-keygen -t ed25519 -C "${email}"
+      
+      echo "\nPlease verify that ${HOME}/.ssh/config looks exactly like this?\n"
+      echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
+      echo "\nIf it does not look like this please copy and paste this text above and place it into the config file."
+      echo '\nPress Enter to Continue'
+      read
+
+      printf "
+      Your SSH key has now been added to the key agent on your computer.
+      This will now allow you to push and pull commits to and from GitHub without having to sign in each time.
+      
+      IMPORTANT: Please look at the To-Do list that will be displayed after this script runs for important next steps.
+
+      Press Enter to Continue
+      "
+      read
+      fi
+  else 
+    printf "
+    Creating ~/.ssh/config file...
+    "
+    touch ~/.ssh/config
+
+    printf "
+    We are going to now generate an SSH key that will be associated with your email.
+
+    This is an email that will be associated with your commits to GitHub, this can be
+    your GitHub email(preferred) or another email.
+
+    When generating the key, it will prompt you for a passphrase. This passphrase is to
+    protect your key and this passphrase will then be stored in your computer's keychain
+    so you won't need to enter it each time you try to access GitHub.
+
+    Please enter your email:
+    "
+    read email
+    ssh-keygen -t ed25519 -C "${email}"
+    echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
+    eval "$(ssh-agent -s)"
+    ssh-add -K ~/.ssh/id_ed25519
+    printf "
+    Your SSH key has now been added to the key agent on your computer.
+    This will now allow you to push and pull commits to and from GitHub without having to sign in each time.
+
+    (Note: Some SSH keys are protected with a passphrase that the user sets up. If you do not remember the
+    passphrase and/or do not have it stored in your computers keychain then you may need to generate a new
+    SSH key.)
+    
+    IMPORTANT: Please look at the To-Do list that will be displayed after this script runs for important next steps.
+
+    Press Enter to Continue
+    "
+    read
+  fi
+else
 fi
 
 # Clones the repository containing all the dotfiles and symlinks them to the original files in the home directory.
 # Now when a program refers to the hoe dotfiles they are now pointing to the custom dotfiles cloned from the repo.
-echo "cloning dotfiles"
-git clone git@github.com:nickjmoss/dotfiles.git "${HOME}/dotfiles"
-ln -s "${HOME}/dotfiles/.zshrc" "${HOME}/.zshrc"
-ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
-ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
-ln -s "${HOME}/dotfiles/.my_bin" "${HOME}/.my_bin"
-ln -s "${HOME}/dotfiles/.vimrc" "${HOME}/.vimrc"
-ln -s "${HOME}/dotfiles/.vimrc-parts" "${HOME}/.vimrc-parts"
-ln -s "${HOME}/dotfiles/.ripgreprc" "${HOME}/.ripgreprc"
+printf "
+Dotfiles Download:
+  If you have other configuration files (i.e. .gitconfig, .zshrc, .gitignore_global) that you would like to download,
+  this script will download them for you and make them your default configuration files.
 
-echo "making system modifications:"
+  To download the files enter your GitHub username:
+  
+  Otherwise hit Enter
+"
+read user
+if [[ $user ]]
+then
+  echo "Please enter the name of the repo where your files are:"
+  read repo
+  git clone git@github.com:${user}/${repo}.git "${HOME}/dotfiles"
+  ln -s "${HOME}/dotfiles/.zshrc" "${HOME}/.zshrc"
+  ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
+  ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
+  ln -s "${HOME}/dotfiles/.my_bin" "${HOME}/.my_bin"
+  ln -s "${HOME}/dotfiles/.vimrc" "${HOME}/.vimrc"
+  ln -s "${HOME}/dotfiles/.vimrc-parts" "${HOME}/.vimrc-parts"
+  ln -s "${HOME}/dotfiles/.ripgreprc" "${HOME}/.ripgreprc"
+
+  printf "
+  All of your configuration files were downloaded and have been set as the default
+  configurations. Each file is located in the ${HOME}/dotfiles directory.
+
+  Press Enter to Continue
+  "
+  read
+else
+fi
+#######################################################################################
+
+##############################################
+# WELCOME TO THE SYSTEM PREFERENCES SETTINGS #
+##############################################
+
+printf "
+##############################################
+# WELCOME TO THE SYSTEM PREFERENCES SETTINGS #
+##############################################
+
+I have curated a number of modifications to the Mac OS preferences. Some of these preferences can be adjusted
+through System Preferences but there are many that are hidden unless done through the command line. This script
+adjust both and does it automatically. 
+
+If you would like to check out the list of preferences or make adjustments of your own, look at the the code for
+this script in GitHub or download it and look at it in a text editor. Each person is different so I don't expect
+everyone to have the same preferences as I do, feel free to make changes.
+
+To learn how to adjust these settings, I suggest reading this article to get started and then find similar tutorials
+online:
+  https://pawelgrzybek.com/change-macos-user-preferences-via-command-line/
+
+Press Enter to Continue 
+or 
+Enter 'q' to Quit
+"
+read input
+if [[ ${input} ]]
+then exit
+else
+fi
 
 # Make Chrome Two finger swipe for back and forward
 defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool TRUE
