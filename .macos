@@ -940,7 +940,7 @@ done
 echo "Done. Note that some of these changes require a logout/restart to take effect."
 
 
-printf "TODO:\n\
+printf "TO DO:\n\
   Rearrange the Dock\n\
 \n\
 Restart Terminal.app\n\
