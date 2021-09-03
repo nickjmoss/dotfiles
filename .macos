@@ -108,8 +108,11 @@ done;
 
 
 # Hide last session information that appears each time a new shell session is started
-cd ${HOME}
+if [ -f "${HOME}/.hushlogin"]
+then echo "file .hushlogin already exists"
+else cd ${HOME}
 touch .hushlogin
+fi
 
 # Check the node and npm versions and print it to console
 echo "node --version: $(node --version)"
@@ -938,13 +941,7 @@ echo "Done. Note that some of these changes require a logout/restart to take eff
 
 
 printf "TODO:\n\
-install: \n\
-  battery indicator (App Store) \n\
-  Gifski (App Store) \n\
-  Runcat (App Store) \n\
-  Todoist (App Store) \n\
-  Webcam Settings (App Store) \n\
-  Audacity (https://www.audacityteam.org/download/) \n\
+  Rearrange the Dock\n\
 \n\
 Restart Terminal.app\n\
 copy git config from your backup/re-login \n\
