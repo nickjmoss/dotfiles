@@ -16,9 +16,11 @@ while true;
   sleep 60; 
   kill -0 "$$" || exit; 
   done 2>/dev/null &
-###############################################################################
-# Nick's Customizations                                                       #
-###############################################################################
+#################################################################################################################################
+
+###########################################
+# Nick's Customizations                   #
+###########################################
 printf "
 ###############################################
 # WELCOME TO MAC OS CONFIGURATION AND SET UP! #                                                   
@@ -69,21 +71,16 @@ then echo "It looks like Homebrew is already installed on your machine! Now let'
 
 Press Enter to Continue\n"
 read
+clear
 else
   echo "It looks like Homebrew is not installed on your machine. Let's get it installed!
   
   Press Enter to Continue\n"
   read
+  clear
   # install homebrew https://brew.sh
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
-
-echo "brew installing stuff"
-# hub: a github-specific version of git
-# libdvdcss: makes handbreak capable of ripping DVDs
-# ripgrep: rg is faster than alternatives
-# ffmpeg: eventually I'll need this for something
-# tree: really handy for listing out directories in text
 
 #####################################
 # INSTALLING PACKAGES WITH HOMEBREW #
@@ -105,6 +102,10 @@ Those packages are:
 I know that some users may want different packages or no packages at all so I have
 provided the following options. Please enter the number of the option you would like.
 
+(NOTE: You can also edit the package list inside the source code. Just search for PKG_LIST in
+an editor and you can add or remove the packages you want and then you can come run this script
+again and select option #1.)
+
 OPTIONS:
   1. I would like to install the default list of packages provided.
   2. I would like to install the default list of packages and add some of my own.
@@ -112,6 +113,7 @@ OPTIONS:
   4. I don't want to install any packages at this time.
 "
 read option
+clear
 
 if [[ ${option} == '1' ]]
 then
@@ -182,7 +184,7 @@ BREW_LIST=( [Google\ Chrome]=google-chrome
 [BetterZip]=betterzip 
 [Github\ Desktop]=github 
 )
-
+clear
 printf "
 ###########################
 # APPS NOT FROM APP STORE #
@@ -190,10 +192,14 @@ printf "
 
 I have a list of default apps that I install onto my machines within this script.
 Those apps are:
-  ${BREW_LIST}
+  ${(k)BREW_LIST}
 
 I know that some users may want different apps or no apps at all so I have
 provided the following options. Please enter the number of the option you would like.
+
+(NOTE: You can also edit the app list inside the source code. Just search for BREW_LIST in
+an editor and you can add or remove the apps you want and then you can come run this script
+again and select option #1.)
 
 OPTIONS:
   1. I would like to install the default list of apps provided.
@@ -336,7 +342,7 @@ fi
 ##################################
 # INSTALLING APPS FROM APP STORE #
 ##################################
-echo "installing apps from the App Store..."
+clear
 # Add apps and their mas id to the associative array ex. myArray=([appName]=appId or appName appID) spaces in the app name must be escaped with '\'
 declare -A APP_LIST
 APP_LIST=( [Microsoft\ Excel]=462058435 
@@ -346,14 +352,62 @@ APP_LIST=( [Microsoft\ Excel]=462058435
 [Microsoft\ Remote\ Desktop]=1295203466 
 [Microsoft\ Word]=462054704 
 [OneDrive]=823766827 )
+printf "
+###########################
+# APPS FROM APP STORE #
+###########################
+In order to install apps from the App Store we are going to use a package we just
+installed called 'mas', which stands for Mac App Store. This command line tool
+allows you to search, install, and update apps from the App Store. Each app has a
+unique mas ID that we will use to install the apps we want.
 
-for APP in ${(k)APP_LIST}; 
-do
-  if [ -d "/Applications/${APP}.app" ]
-  then echo "$APP is already installed"
-  else mas install ${APP_LIST[$APP]} 
-  fi
-done;
+I have a list of default apps that I install onto my machines within this script.
+Those apps are:
+  ${(k)APP_LIST}
+
+I know that some users may want different apps or no apps at all so I have
+provided the following options. Make sure you are signed into iCloud and the
+App Store before continuing.
+
+Please enter the number of the option you would like.
+
+OPTIONS:
+  1. I would like to install the default list of apps provided.
+  2. I would like to install the default list of apps and add some of my own.
+  3. I don't want any of the default apps but I would like to add my own.
+  4. I don't want to install any apps at this time.
+
+(NOTE: You can also edit the app list inside the source code. Just search for APP_LIST in
+an editor and you can add or remove the apps you want and then you can come run this script
+again and select option #1.)
+"
+read input
+clear
+
+if [[ $input == '1' ]]
+then
+  echo "installing apps from the App Store..."
+  for APP in ${(k)APP_LIST}; 
+  do
+    if [ -d "/Applications/${APP}.app" ]
+    then echo "$APP is already installed"
+    else mas install ${APP_LIST[$APP]} 
+    fi
+  done;
+elif [[ $input == '2' ]]
+then
+  printf "
+  In order to install your apps, you need to know the name of your app and its mas ID.
+  If you do not know your app's mas ID, I suggest you open a new terminal window(cmd+N)
+  and enter the command 'mas search yourApp' to search for your app and it's ID.
+
+  Please enter your app's name and mas ID just like the example below:
+
+  OneDrive=823766827  Microsoft\ Word=462054704
+
+  Make sure to separate each app with a space and if an app's name contains spaces please
+  escape those spaces with '\'.
+  "
 
 
 # Hide last session information that appears each time a new shell session is started
