@@ -26,15 +26,30 @@ printf "
 
 Hello $(whoami)! Let's get you all set up!
 
+Things To Do Before You Continue:
+  1. Sign in to iCloud and the App Store.
+  2. Quit out of all applications that are open.
+
 Press Enter to Continue
 "
 read
+clear
 
-echo "Let's create a main folder for all of your code!
-What would you like that folder to be called?"
-read name
-mkdir -p "${HOME}/${name}"
-echo "${name} was created and placed in your ${HOME} directory\n"
+printf "
+Would you like to create a main folder for all of your code/projects? (y/n)
+"
+read input
+if [[ ${input} == 'y' ]]
+then 
+  echo "What would you like that folder to be called?"
+  read name
+  mkdir -p "${HOME}/${name}"
+  echo "${name} was created and placed in your ${HOME} directory\n"
+  echo "Press Enter to Continue"
+  read
+  clear
+else
+fi
 
 printf "
 #########################
@@ -73,24 +88,83 @@ echo "brew installing stuff"
 #####################################
 # INSTALLING PACKAGES WITH HOMEBREW #
 #####################################
-echo "installing packages..."
+
 # Enter the desired packages into the PKG_LIST array below. Separate each package with a space.
 # This will check if HomeBrew has already installed the package.
 PKG_LIST=(mas wget python@3.9 youtube-dl node ffmpeg hub tree ripgrep)
 
-for PKG in ${PKG_LIST};
-do
-  if [ -d "/usr/local/Cellar/${PKG}" ]
-  then echo "${PKG} is already installed"
-  else brew install ${PKG}
-  fi
-done;
+printf "
+#####################
+# HOMEBREW PACKAGES #
+#####################
+
+I have a list of default packages that I install onto my machines within this script.
+Those packages are:
+  ${PKG_LIST}
+
+I know that some users may want different packages or no packages at all so I have
+provided the following options. Please enter the number of the option you would like.
+
+OPTIONS:
+  1. I would like to install the default list of packages provided.
+  2. I would like to install the default list of packages and add some of my own.
+  3. I don't want any of the default packages but I would like to add my own.
+  4. I don't want to install any packages at this time.
+"
+read option
+
+if [[ ${option} == '1' ]]
+then
+  echo "\nbrew installing packages...\n"
+  for PKG in ${PKG_LIST};
+  do
+    if [ -d "/usr/local/Cellar/${PKG}" ]
+    then echo "${PKG} is already installed"
+    else brew install ${PKG}
+    fi
+  done;
+elif [[ ${option} == '2' ]]
+then
+  echo "\nPlease enter the names of the packages you would like Brew to install on one line like so: pkg1 pkg2 pkg3...pkgx
+then press enter."
+  read -A USER_LIST
+  echo "\nbrew installing packages...\n"
+  for PKG in ${PKG_LIST};
+  do
+    if [ -d "/usr/local/Cellar/${PKG}" ]
+    then echo "${PKG} is already installed"
+    else brew install ${PKG}
+    fi
+  done;
+
+  for PKG in ${USER_LIST};
+  do
+    if [ -d "/usr/local/Cellar/${PKG}" ]
+    then echo "${PKG} is already installed"
+    else brew install ${PKG}
+    fi
+  done;
+elif [[ ${option} == '3' ]]
+then
+  echo "\nPlease enter the names of the packages you would like Brew to install on one line like so: pkg1 pkg2 pkg3...pkgx
+then press enter."
+  read -A USER_LIST
+  for PKG in ${USER_LIST};
+  do
+    if [ -d "/usr/local/Cellar/${PKG}" ]
+    then echo "${PKG} is already installed"
+    else brew install ${PKG}
+    fi
+  done;
+else
+fi
+
+
+
 
 ###################################################
 # INSTALLING APPS NOT FROM APP STORE VIA HOMEBREW #
 ###################################################
-
-echo "installing apps that are not from the App Store..."
 declare -A BREW_LIST
 BREW_LIST=( [Google\ Chrome]=google-chrome 
 [Spotify]=spotify 
@@ -109,15 +183,155 @@ BREW_LIST=( [Google\ Chrome]=google-chrome
 [Github\ Desktop]=github 
 )
 
-for BREW_APP in ${(k)BREW_LIST}; 
-do
-  if [ -d "/Applications/${BREW_APP}.app" ]
-  then echo "$BREW_APP is already installed"
-  elif [ -d "$HOME/Applications/${BREW_APP}.app" ]
-  then echo "$BREW_APP is already installed"
-  else brew install --cask ${BREW_LIST[$BREW_APP]} 
-  fi
-done;
+printf "
+###########################
+# APPS NOT FROM APP STORE #
+###########################
+
+I have a list of default apps that I install onto my machines within this script.
+Those apps are:
+  ${BREW_LIST}
+
+I know that some users may want different apps or no apps at all so I have
+provided the following options. Please enter the number of the option you would like.
+
+OPTIONS:
+  1. I would like to install the default list of apps provided.
+  2. I would like to install the default list of apps and add some of my own.
+  3. I don't want any of the default apps but I would like to add my own.
+  4. I don't want to install any apps at this time.
+"
+read input
+clear
+
+if [[ $input == '1' ]]
+then
+  echo "\ninstalling apps that are not from the App Store...\n"
+  for BREW_APP in ${(k)BREW_LIST}; 
+  do
+    if [ -d "/Applications/${BREW_APP}.app" ]
+    then echo "$BREW_APP is already installed"
+    elif [ -d "$HOME/Applications/${BREW_APP}.app" ]
+    then echo "$BREW_APP is already installed"
+    else brew install --cask ${BREW_LIST[$BREW_APP]} 
+    fi
+  done;
+elif [[ $input == '2' ]]
+then
+  printf "
+  In order to install your apps you must know the app's formal name on your machine
+  and the app's Homebrew formula name(the name that Homebrew uses to install the app).
+
+  For example, if I wanted to install Spotify, Spotify's formal name on my computer is 'Spotify'
+  but the Homebrew name for Spotify is simply 'spotify'. Typically if the app is only one
+  word then the formal name is capitalized whereas the Homebrew name is lowercase(i.e. 'Zoom' and 'zoom').
+  
+  If the app has more than one word then typically the Homebrew name is lowercase and the words are
+  separated by a hyphen '-'. For example, 'Visual Studio Code' is the name on my computer and the
+  Homebrew name is 'visual-studio-code'. Please make sure you know both names before you continue.
+
+  Press Enter to Continue
+  "
+  read
+  clear
+
+  printf "
+  Please enter the name of your apps that you want to download. Please enter the formal name first and then
+  the Homebrew name second as such:
+
+  FormalName=HomebrewName
+
+  For example:
+  Spotify=spotify Zoom=zoom App=app...
+
+  Please make sure to separate each app with a space, enter all the names of the apps you would like to install
+  then press enter.
+  "
+
+  declare -A USER_APPS_LIST
+  IFS="=' '"
+  read -A apps
+  clear
+  for ((i = 1; i < ${#apps[@]}; i += 2))
+  do
+      USER_APPS_LIST[${apps[i]}]=${apps[i + 1]}
+  done;
+
+  echo "\ninstalling apps that are not from the App Store...\n"
+  for BREW_APP in ${(k)BREW_LIST}; 
+  do
+    if [ -d "/Applications/${BREW_APP}.app" ]
+    then echo "$BREW_APP is already installed"
+    elif [ -d "$HOME/Applications/${BREW_APP}.app" ]
+    then echo "$BREW_APP is already installed"
+    else brew install --cask ${BREW_LIST[$BREW_APP]} 
+    fi
+  done;
+
+  for USER_APP in ${(k)USER_APPS_LIST}; 
+  do
+    if [ -d "/Applications/${USER_APP}.app" ]
+    then echo "$USER_APP is already installed"
+    elif [ -d "$HOME/Applications/${USER_APP}.app" ]
+    then echo "$USER_APP is already installed"
+    else brew install --cask ${USER_APPS_LIST[$USER_APP]} 
+    fi
+  done;
+
+elif [[ $input == '3' ]]
+then
+  printf "
+  In order to install your apps you must know the app's formal name on your machine
+  and the app's Homebrew formula name(the name that Homebrew uses to install the app).
+
+  For example, if I wanted to install Spotify, Spotify's formal name on my computer is 'Spotify'
+  but the Homebrew name for Spotify is simply 'spotify'. Typically if the app is only one
+  word then the formal name is capitalized whereas the Homebrew name is lowercase(i.e. 'Zoom' and 'zoom').
+  
+  If the app has more than one word then typically the Homebrew name is lowercase and the words are
+  separated by a hyphen '-'. For example, 'Visual Studio Code' is the name on my computer and the
+  Homebrew name is 'visual-studio-code'. Please make sure you know both names before you continue.
+
+  Press Enter to Continue
+  "
+  read
+  clear
+
+  printf "
+  Please enter the name of your apps that you want to download. Please enter the formal name first and then
+  the Homebrew name second as such:
+
+  FormalName=HomebrewName
+
+  For example:
+  Spotify=spotify Zoom=zoom App=app...
+
+  Please make sure to separate each app with a space, enter all the names of the apps you would like to install
+  then press enter.
+  "
+  declare -A USER_APPS_LIST
+  IFS="=' '"
+  read -A apps
+  clear
+  for ((i = 1; i < ${#apps[@]}; i += 2))
+  do
+      USER_APPS_LIST[${apps[i]}]=${apps[i + 1]}
+  done;
+  
+  echo "installing apps that are not from the App Store...\n"
+  for USER_APP in ${(k)USER_APPS_LIST}; 
+  do
+    if [ -d "/Applications/${USER_APP}.app" ]
+    then echo "$USER_APP is already installed"
+    elif [ -d "$HOME/Applications/${USER_APP}.app" ]
+    then echo "$USER_APP is already installed."
+    else brew install --cask ${USER_APPS_LIST[$USER_APP]} 
+    fi
+  done;
+else
+fi
+
+
 
 ##################################
 # INSTALLING APPS FROM APP STORE #
