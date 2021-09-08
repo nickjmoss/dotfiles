@@ -29,7 +29,7 @@ printf "
 Hello $(whoami)! Let's get you all set up!
 
 Things To Do Before You Continue:
-  1. Sign in to iCloud and the App Store.
+  1. Sign-in to iCloud and the App Store.
   2. Quit out of all applications that are open.
 
 Press Enter to Continue
@@ -52,7 +52,51 @@ then
   clear
 else
 fi
+#################################################################################################################################
+clear
+printf "
+#########################################
+# OH-MY-ZSH INSTALLATION & CONFIGURATON #
+#########################################
 
+Oh-my-zsh is the framework that can configure your terminal shell and it comes
+with really cool features like plugins and custom themes for the shell. Let's
+check if you have it installed, and if you don't we will install it for you!
+"
+if [ -d "${HOME}/.oh-my-zsh" ]
+then 
+  echo "oh-my-zsh already installed..."
+  echo "\nPress Enter to Continue"
+  read
+else
+  sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  echo "\nPress Enter to Continue"
+  read
+fi
+
+# Hide the information that appears at the top of the shell when a new session is started.
+if [ -f "${HOME}/.hushlogin" ]
+then
+else
+  cd ${HOME}
+  touch .hushlogin
+fi
+
+# Install the powerlevel10k theme
+echo "\nWould you like to install the powerlevel10k theme for zsh? (y/n)"
+read input
+if [[ $input == 'y' ]]
+then
+  if [ -d "${ZSH_CUSTOM}/themes/powerlevel10k"]
+  then
+  else
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+  fi
+else
+fi
+
+#################################################################################################################################
+clear
 printf "
 #########################
 # HOMEBREW INSTALLATION #
@@ -64,10 +108,10 @@ Store through a package called 'mas'. And lastly, Homebrew can install apps that
 such as Spotify!
 
 This part of the script will take you through installing certain packages and apps to your computer automatically.
-First let's check if you have Homebrew installed already.
+First let's check if you have Homebrew installed already...
 "
 if [[ -d "/usr/local/Homebrew" ]]
-then echo "It looks like Homebrew is already installed on your machine! Now let's install some things!
+then echo "\nIt looks like Homebrew is already installed on your machine! Now let's install some things!
 
 Press Enter to Continue\n"
 read
@@ -81,7 +125,7 @@ else
   # install homebrew https://brew.sh
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
-
+#################################################################################################################################
 #####################################
 # INSTALLING PACKAGES WITH HOMEBREW #
 #####################################
@@ -97,6 +141,7 @@ printf "
 
 I have a list of default packages that I install onto my machines within this script.
 Those packages are:
+
   ${PKG_LIST}
 
 I know that some users may want different packages or no packages at all so I have
@@ -149,7 +194,7 @@ then press enter."
 elif [[ ${option} == '3' ]]
 then
   echo "\nPlease enter the names of the packages you would like Brew to install on one line like so: pkg1 pkg2 pkg3...pkgx
-then press enter."
+  then press enter."
   read -A USER_LIST
   for PKG in ${USER_LIST};
   do
@@ -160,10 +205,101 @@ then press enter."
   done;
 else
 fi
+#################################################################################################################################
+#################
+# NODE PACKAGES #
+#################
+clear
+NODE_LIST=(serve fkill-cli npm-quick-run semantic-release-cli npm-check-updates)
+# Check the node and npm versions and print it to console
+if [ -d "/usr/local/Cellar/node" ]
+then 
+  echo "node --version: $(node --version)"
+  echo "npm --version: $(npm --version)\n"
+  printf "
+  #################
+  # NODE PACKAGES #
+  #################
 
+  Node is another package manager just like Homebrew that contains packages that Homebrew doesn't.
+  Most of these packages are used for the command-line and for more info about Node visit their
+  website at https://www.npmjs.com/
 
+  I have a list of default node packages that I install and the packages are listed below:
 
+  ${NODE_LIST}
 
+  I know that some users may want different packages or no packages at all so I have
+  provided the following options. Please enter the number of the option you would like.
+
+  (NOTE: You can also edit the package list inside the source code. Just search for NODE_USER_LIST in
+  an editor and you can add or remove the packages you want and then you can come run this script
+  again and select option #1.)
+
+  OPTIONS:
+    1. I would like to install the default list of packages provided.
+    2. I would like to install the default list of packages and add some of my own.
+    3. I don't want any of the default packages but I would like to add my own.
+    4. I don't want to install any packages at this time.
+  "
+  read input
+  if [[ $input == '1' ]]
+  then
+    for PKG in ${NODE_LIST};
+    do
+      if [ -d "${HOME}/.nvm/versions/node/v14.17.1/lib/node_modules/${PKG}" ]
+      then echo "'${PKG}' already installed..."
+      else npm install --global ${PKG}
+      fi
+    done;
+
+    echo "\nAll packages were installed, press enter to continue"
+    read
+  elif [[ $input == '2' ]]
+  then
+    echo "\nPlease enter the names of the packages you would like Node to install on one line like so: pkg1 pkg2 pkg3...pkgx
+then press enter."
+    read -A NODE_USER_LIST
+    echo "\nnode installing packages...\n"
+    for PKG in ${NODE_USER_LIST};
+    do
+      if [ -d "${HOME}/.nvm/versions/node/v14.17.1/lib/node_modules/${PKG}" ]
+      then echo "'${PKG}' already installed..."
+      else npm install --global ${PKG}
+      fi
+    done;
+
+    for PKG in ${NODE_LIST};
+    do
+      if [ -d "${HOME}/.nvm/versions/node/v14.17.1/lib/node_modules/${PKG}" ]
+      then echo "'${PKG}' already installed..."
+      else npm install --global ${PKG}
+      fi
+    done;
+
+    echo "\nAll packages were installed, press enter to continue"
+    read
+  elif [[ $input == '3' ]]
+  then
+    echo "\nPlease enter the names of the packages you would like Node to install on one line like so: pkg1 pkg2 pkg3...pkgx
+then press enter."
+    read -A NODE_USER_LIST
+    echo "\nnode installing packages...\n"
+    for PKG in ${NODE_USER_LIST};
+    do
+      if [ -d "${HOME}/.nvm/versions/node/v14.17.1/lib/node_modules/${PKG}" ]
+      then echo "'${PKG}' already installed..."
+      else npm install --global ${PKG}
+      fi
+    done;
+
+    echo "\nAll packages were installed, press enter to continue"
+    read
+  else
+  fi
+else
+fi
+#################################################################################################################################
 ###################################################
 # INSTALLING APPS NOT FROM APP STORE VIA HOMEBREW #
 ###################################################
@@ -171,8 +307,8 @@ declare -A BREW_LIST
 BREW_LIST=( [Google\ Chrome]=google-chrome 
 [Spotify]=spotify 
 [iTerm]=iterm2 
-[Visual Studio Code]=visual-studio-code 
-[Sublime Text]=sublime-text 
+[Visual\ Studio\ Code]=visual-studio-code 
+[Sublime\ Text]=sublime-text 
 [Discord]=discord 
 [Handbrake]=handbrake
 [Alfred]=alfred 
@@ -192,6 +328,7 @@ printf "
 
 I have a list of default apps that I install onto my machines within this script.
 Those apps are:
+  
   ${(k)BREW_LIST}
 
 I know that some users may want different apps or no apps at all so I have
@@ -338,7 +475,7 @@ else
 fi
 
 
-
+#################################################################################################################################
 ##################################
 # INSTALLING APPS FROM APP STORE #
 ##################################
@@ -352,83 +489,137 @@ APP_LIST=( [Microsoft\ Excel]=462058435
 [Microsoft\ Remote\ Desktop]=1295203466 
 [Microsoft\ Word]=462054704 
 [OneDrive]=823766827 )
-printf "
-###########################
-# APPS FROM APP STORE #
-###########################
-In order to install apps from the App Store we are going to use a package we just
-installed called 'mas', which stands for Mac App Store. This command line tool
-allows you to search, install, and update apps from the App Store. Each app has a
-unique mas ID that we will use to install the apps we want.
 
-I have a list of default apps that I install onto my machines within this script.
-Those apps are:
-  ${(k)APP_LIST}
-
-I know that some users may want different apps or no apps at all so I have
-provided the following options. Make sure you are signed into iCloud and the
-App Store before continuing.
-
-Please enter the number of the option you would like.
-
-OPTIONS:
-  1. I would like to install the default list of apps provided.
-  2. I would like to install the default list of apps and add some of my own.
-  3. I don't want any of the default apps but I would like to add my own.
-  4. I don't want to install any apps at this time.
-
-(NOTE: You can also edit the app list inside the source code. Just search for APP_LIST in
-an editor and you can add or remove the apps you want and then you can come run this script
-again and select option #1.)
-"
-read input
-clear
-
-if [[ $input == '1' ]]
-then
-  echo "installing apps from the App Store..."
-  for APP in ${(k)APP_LIST}; 
-  do
-    if [ -d "/Applications/${APP}.app" ]
-    then echo "$APP is already installed"
-    else mas install ${APP_LIST[$APP]} 
-    fi
-  done;
-elif [[ $input == '2' ]]
+if [ -d "/usr/local/Cellar/mas" ]
 then
   printf "
-  In order to install your apps, you need to know the name of your app and its mas ID.
-  If you do not know your app's mas ID, I suggest you open a new terminal window(cmd+N)
-  and enter the command 'mas search yourApp' to search for your app and it's ID.
+  ###########################
+  # APPS FROM APP STORE #
+  ###########################
+  In order to install apps from the App Store we are going to use a package we just
+  installed called 'mas', which stands for Mac App Store. This command line tool
+  allows you to search, install, and update apps from the App Store. Each app has a
+  unique mas ID that we will use to install the apps we want.
 
-  Please enter your app's name and mas ID just like the example below:
+  I have a list of default apps that I install onto my machines within this script.
+  Those apps are:
+    
+    ${(k)APP_LIST}
 
-  OneDrive=823766827  Microsoft\ Word=462054704
+  I know that some users may want different apps or no apps at all so I have
+  provided the following options. Make sure you are signed into iCloud and the
+  App Store before continuing.
 
-  Make sure to separate each app with a space and if an app's name contains spaces please
-  escape those spaces with '\'.
+  Please enter the number of the option you would like.
+
+  OPTIONS:
+    1. I would like to install the default list of apps provided.
+    2. I would like to install the default list of apps and add some of my own.
+    3. I don't want any of the default apps but I would like to add my own.
+    4. I don't want to install any apps at this time.
+
+  (NOTE: You can also edit the app list inside the source code. Just search for APP_LIST in
+  an editor and you can add or remove the apps you want and then you can come run this script
+  again and select option #1.)
   "
+  read input
+  clear
 
+  if [[ $input == '1' ]]
+  then
+    echo "installing apps from the App Store..."
+    for APP in ${(k)APP_LIST}; 
+    do
+      if [ -d "/Applications/${APP}.app" ]
+      then echo "$APP is already installed"
+      else mas install ${APP_LIST[$APP]} 
+      fi
+    done;
+  elif [[ $input == '2' ]]
+  then
+    printf "
+    In order to install your apps, you need to know the name of your app and its mas ID.
+    If you do not know your app's mas ID, I suggest you open a new terminal window(cmd+N)
+    and enter the command 'mas search yourApp' to search for your app and it's ID.
 
-# Hide last session information that appears each time a new shell session is started
-if [ -f "${HOME}/.hushlogin"]
-then echo "file .hushlogin already exists"
-else cd ${HOME}
-touch .hushlogin
+    Please enter your app's name and mas ID just like the example below:
+
+    OneDrive=823766827  Microsoft\ Word=462054704
+
+    Make sure to separate each app with a space and if an app's name contains spaces please
+    escape those spaces with '\'.
+    "
+    declare -A USER_MAS_LIST
+    IFS="=' '"
+    read -A apps
+    clear
+    for ((i = 1; i < ${#apps[@]}; i += 2))
+    do
+        USER_MAS_LIST[${apps[i]}]=${apps[i + 1]}
+    done;
+
+    echo "installing apps that are not from the App Store...\n"
+    for MAS_APP in ${(k)USER_MAS_LIST}; 
+    do
+      if [ -d "/Applications/${MAS_APP}.app" ]
+      then echo "$MAS_APP is already installed"
+      elif [ -d "$HOME/Applications/${MAS_APP}.app" ]
+      then echo "$MAS_APP is already installed."
+      else brew install --cask ${USER_MAS_LIST[$MAS_APP]} 
+      fi
+    done;
+
+    for APP in ${(k)APP_LIST}; 
+    do
+      if [ -d "/Applications/${APP}.app" ]
+      then echo "$APP is already installed"
+      else mas install ${APP_LIST[$APP]} 
+      fi
+    done;
+  elif [[ $input == '3' ]]
+  then
+    printf "
+    In order to install your apps, you need to know the name of your app and its mas ID.
+    If you do not know your app's mas ID, I suggest you open a new terminal window(cmd+N)
+    and enter the command 'mas search yourApp' to search for your app and it's ID.
+
+    Please enter your app's name and mas ID just like the example below:
+
+    OneDrive=823766827  Microsoft\ Word=462054704
+
+    Make sure to separate each app with a space and if an app's name contains spaces please
+    escape those spaces with '\'.
+    "
+    declare -A USER_MAS_LIST
+    IFS="=' '"
+    read -A apps
+    clear
+    for ((i = 1; i < ${#apps[@]}; i += 2))
+    do
+        USER_MAS_LIST[${apps[i]}]=${apps[i + 1]}
+    done;
+
+    echo "installing apps that are not from the App Store...\n"
+    for MAS_APP in ${(k)USER_MAS_LIST}; 
+    do
+      if [ -d "/Applications/${MAS_APP}.app" ]
+      then echo "$MAS_APP is already installed"
+      elif [ -d "$HOME/Applications/${MAS_APP}.app" ]
+      then echo "$MAS_APP is already installed."
+      else brew install --cask ${USER_MAS_LIST[$MAS_APP]} 
+      fi
+    done;
+  else
+  fi
+else
+  echo "Cannot install any App Store apps at this time because the package 'mas' from Homebrew is not installed."
 fi
-
-# Check the node and npm versions and print it to console
-echo "node --version: $(node --version)"
-echo "npm --version: $(npm --version)"
-
-echo "installing a few global npm packages"
-npm install --global serve fkill-cli npm-quick-run \
-semantic-release-cli npm-check-updates
-############################################################################################
+#################################################################################################################################
 
 #######################################
 # GITHUB AUTHENTICATION AND FILE COPY #
 #######################################
+clear
 printf "
 ###########################################
 # GITHUB AUTHENTICATION AND FILE DOWNLOAD #
@@ -440,6 +631,7 @@ GitHub Authentication:
   enter your username and password each time.
 "
 read input
+clear
 if [[ ${input} == 'y' ]]
 then
   echo "\nGenerating SSH key for Github authentication..."
@@ -459,6 +651,7 @@ then
       echo "Please verify that ${HOME}/.ssh/config looks exactly like this: (y/n)\n"
       echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
       read input
+      clear
       if [[ ${input} == 'y' ]]
       then
         eval "$(ssh-agent -s)"
@@ -486,6 +679,7 @@ then
         I suggest you set up your SSH authentication manually with help from GitHub's Documentation and then come back
         and run this script and enter 'n' when prompted to set up GitHub authentication.
         "
+        exit
       fi
     else
       printf "
@@ -508,6 +702,7 @@ then
       echo "\nIf it does not look like this please copy and paste this text above and place it into the config file."
       echo '\nPress Enter to Continue'
       read
+      clear
 
       printf "
       Your SSH key has now been added to the key agent on your computer.
@@ -555,12 +750,14 @@ then
     Press Enter to Continue
     "
     read
+    clear
   fi
 else
 fi
-
+#################################################################################################################################
 # Clones the repository containing all the dotfiles and symlinks them to the original files in the home directory.
 # Now when a program refers to the hoe dotfiles they are now pointing to the custom dotfiles cloned from the repo.
+clear
 printf "
 Dotfiles Download:
   If you have other configuration files (i.e. .gitconfig, .zshrc, .gitignore_global) that you would like to download,
@@ -575,14 +772,50 @@ if [[ $user ]]
 then
   echo "Please enter the name of the repo where your files are:"
   read repo
+  clear
+  # Clone the repo and check if the dotfiles exist, if they exist then create symlinks to make the the default config files.
   git clone git@github.com:${user}/${repo}.git "${HOME}/dotfiles"
-  ln -s "${HOME}/dotfiles/.zshrc" "${HOME}/.zshrc"
-  ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
-  ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
-  ln -s "${HOME}/dotfiles/.my_bin" "${HOME}/.my_bin"
-  ln -s "${HOME}/dotfiles/.vimrc" "${HOME}/.vimrc"
-  ln -s "${HOME}/dotfiles/.vimrc-parts" "${HOME}/.vimrc-parts"
-  ln -s "${HOME}/dotfiles/.ripgreprc" "${HOME}/.ripgreprc"
+  if [ -f "${HOME}/dotfiles/.zshrc" ]
+  then
+    ln -s "${HOME}/dotfiles/.zshrc" "${HOME}/.zshrc"
+  else
+  fi
+
+  if [ -f "${HOME}/dotfiles/.gitignore_global" ]
+  then
+    ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
+  else
+  fi
+
+  if [ -f "${HOME}/dotfiles/.gitconfig" ]
+  then
+    ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
+  else
+  fi
+
+  if [ -f "${HOME}/dotfiles/.my_bin" ]
+  then
+    ln -s "${HOME}/dotfiles/.my_bin" "${HOME}/.my_bin"
+  else
+  fi
+
+  if [ -f "${HOME}/dotfiles/.vimrc" ]
+  then
+    ln -s "${HOME}/dotfiles/.vimrc" "${HOME}/.vimrc"
+  else
+  fi
+
+  if [ -f "${HOME}/dotfiles/.vimrc-parts" ]
+  then
+    ln -s "${HOME}/dotfiles/.vimrc-parts" "${HOME}/.vimrc-parts"
+  else
+  fi
+
+  if [ -f "${HOME}/dotfiles/.ripgreprc" ]
+  then
+    ln -s "${HOME}/dotfiles/.ripgreprc" "${HOME}/.ripgreprc"
+  else
+  fi
 
   printf "
   All of your configuration files were downloaded and have been set as the default
@@ -593,12 +826,12 @@ then
   read
 else
 fi
-#######################################################################################
+#################################################################################################################################
 
 ##############################################
 # WELCOME TO THE SYSTEM PREFERENCES SETTINGS #
 ##############################################
-
+clear
 printf "
 ##############################################
 # WELCOME TO THE SYSTEM PREFERENCES SETTINGS #
@@ -622,12 +855,14 @@ Enter 'q' to Quit
 "
 read input
 if [[ ${input} ]]
-then exit
+then
+  clear
+  exit
 else
 fi
 
 # Make Chrome Two finger swipe for back and forward
-defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool TRUE
+# defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool TRUE
 
 ###############################################################################
 # General UI/UX                                                               #
@@ -638,26 +873,6 @@ sudo pmset -a standbydelay 86400
 
 # Disable the sound effects on boot
 sudo nvram SystemAudioVolume=" "
-
-# Set highlight color to green
-# defaults write NSGlobalDomain AppleHighlightColor -string "0.764700 0.976500 0.568600"
-
-# Set sidebar icon size to medium
-# defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
-
-# Always show scrollbars
-# defaults write NSGlobalDomain AppleShowScrollBars -string "Always"
-# Possible values: `WhenScrolling`, `Automatic` and `Always`
-
-# Disable the over-the-top focus ring animation
-# defaults write NSGlobalDomain NSUseAnimatedFocusRing -bool false
-
-# Disable smooth scrolling
-# (Uncomment if you’re on an older Mac that messes up the animation)
-#defaults write NSGlobalDomain NSScrollAnimationEnabled -bool false
-
-# Increase window resize speed for Cocoa applications
-# defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
 # Expand save panel by default
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
@@ -676,13 +891,6 @@ defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 # Disable the “Are you sure you want to open this application?” dialog
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 
-# Remove duplicates in the “Open With” menu (also see `lscleanup` alias)
-/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
-
-# Display ASCII control characters using caret notation in standard text views
-# Try e.g. `cd /tmp; unidecode "\x{0000}" > cc.txt; open -e cc.txt`
-# defaults write NSGlobalDomain NSTextShowsControlCharacters -bool true
-
 # Disable Resume system-wide
 # defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
 
@@ -694,11 +902,6 @@ defaults write com.apple.CrashReporter DialogType -string "none"
 
 # Set Help Viewer windows to non-floating mode
 defaults write com.apple.helpviewer DevMode -bool true
-
-# Fix for the ancient UTF-8 bug in QuickLook (https://mths.be/bbo)
-# Commented out, as this is known to cause problems in various Adobe apps :(
-# See https://github.com/mathiasbynens/dotfiles/issues/237
-#echo "0x08000100:0" > ~/.CFUserTextEncoding
 
 # Reveal IP address, hostname, OS version, etc. when clicking the clock
 # in the login window
