@@ -95,6 +95,14 @@ then
 else
 fi
 
+# Install the z tool for ZSH
+if [ -d ${ZSH_CUSTOM}/zsh-z ]
+then
+else
+  git clone https://github.com/agkozak/zsh-z $ZSH_CUSTOM/plugins/zsh-z
+fi
+
+
 #################################################################################################################################
 clear
 printf "
@@ -775,7 +783,7 @@ then
   echo "Please enter the name of the repo where your files are:"
   read repo
   clear
-  # Clone the repo and check if the dotfiles exist, if they exist then create symlinks to make the the default config files.
+  # Clone the repo and check if the dotfiles exist, if they exist then create symlinks to make them the default config files.
   git clone git@github.com:${user}/${repo}.git "${HOME}/dotfiles"
   if [ -f "${HOME}/dotfiles/.zshrc" ]
   then
