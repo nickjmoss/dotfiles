@@ -1449,6 +1449,8 @@ Things to do:
   * If you downloaded files from GitHub during this script,
     please go check ${HOME}/dotfiles to make sure they are all
     there.
+  * Login to VS Code to sync your settings
+  * Configure iTerm2 (Add the profile included in this repo)
 
 Have a great day!
 
