@@ -132,7 +132,7 @@ fi
 
 # Enter the desired packages into the PKG_LIST array below. Separate each package with a space.
 # This will check if HomeBrew has already installed the package.
-PKG_LIST=(mas wget python@3.9 youtube-dl node ffmpeg hub tree ripgrep)
+PKG_LIST=(mas wget python@3.9 youtube-dl node ffmpeg hub tree ripgrep bat)
 
 printf "
 #####################
@@ -210,7 +210,7 @@ fi
 # NODE PACKAGES #
 #################
 clear
-NODE_LIST=(serve fkill-cli npm-quick-run semantic-release-cli npm-check-updates)
+NODE_LIST=(serve fkill-cli npm-quick-run semantic-release-cli npm-check-updates yarn)
 # Check the node and npm versions and print it to console
 if [ -d "/usr/local/Cellar/node" ]
 then 
