@@ -643,7 +643,7 @@ clear
 if [[ ${input} == 'y' ]]
 then
   echo "\nGenerating SSH key for Github authentication..."
-  if [ -f "${HOME}/.ssh/config" ]
+  if [[ -d "${HOME}/.ssh" && -f "${HOME}/.ssh/config" ]]
   then
     printf "
     ${HOME}/.ssh/config already exists.
@@ -672,7 +672,8 @@ then
         passphrase and/or do not have it stored in your computers keychain then you may need to generate a new
         SSH key.)
         
-        IMPORTANT: Please look at the To-Do list that will be displayed after this script runs for important next steps.
+        IMPORTANT: Before continuing, please go to the file ${HOME}/.ssh/id_ed25519.pub and copy the key and paste it into the 
+        SSH portion of settings on Github
 
         Press Enter to Continue
         "
@@ -723,6 +724,7 @@ then
       read
       fi
   else 
+    mkdir ~/.ssh
     printf "
     Creating ~/.ssh/config file...
     "
