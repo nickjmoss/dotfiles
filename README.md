@@ -1,4 +1,12 @@
 # Nick's Dotfiles
-These are all the dotfiles that I have downloaded and modified to my specifications. The original author of each dotfile is located in the source code of each file.
+<p>
+These are all the dotfiles that I have downloaded and modified to my specifications. The original author of each dotfile is located in the source code of the main script .macos.
 
-You can run curl in the CLI to run these scripts. Feel free to download them and modify them to your specifications.
+To run the setup script, please download .macos onto your machine and then from the command line go to the directory where .macos was installed and run this command:
+  
+  <code>zsh .macos</code>
+  
+This will run the setup script.
+
+Feel free to download them and modify them to your specifications.
+</p>
