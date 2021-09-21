@@ -963,10 +963,6 @@ defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 # (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 2
 
-# Use scroll gesture with the Ctrl (^) modifier key to zoom
-defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
-defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
-
 # Disable press-and-hold for keys in favor of key repeat
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
@@ -1262,9 +1258,6 @@ defaults write com.apple.mail DraftsViewerAttributes -dict-add "DisplayInThreade
 # Spotlight                                                                   #
 ###############################################################################
 
-# Hide Spotlight tray-icon (and subsequent helper)
-sudo chmod 600 /System/Library/CoreServices/Search.bundle/Contents/MacOS/Search
-
 # Change indexing order and disable some search results
 # Yosemite-specific search results (remove them if you are using macOS 10.9 or older):
 #   MENU_DEFINITION
@@ -1451,7 +1444,7 @@ Things to do:
     there.
   * Login to VS Code to sync your settings
   * Configure iTerm2 (Add the profile included in this repo)
-  * Apply fonts from repo to iTerm and VS Code
+  * Apply fonts that are now downloaded into ${HOME}/dotfiles
 
 Have a great day!
 
