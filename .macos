@@ -140,7 +140,7 @@ fi
 
 # Enter the desired packages into the PKG_LIST array below. Separate each package with a space.
 # This will check if HomeBrew has already installed the package.
-PKG_LIST=(mas wget python@3.9 youtube-dl node ffmpeg hub tree ripgrep bat)
+PKG_LIST=(mas wget python@3.9 youtube-dl node ffmpeg hub tree ripgrep bat gh)
 
 printf "
 #####################
