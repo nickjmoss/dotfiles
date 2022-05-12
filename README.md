@@ -8,5 +8,5 @@ To run the setup script, please download .macos onto your machine and then from 
   
 This will run the setup script.
 
-Feel free to download all the dotfiles them and modify them to your specifications.
+Feel free to download all the dotfiles and modify them to your specifications.
 </p>
